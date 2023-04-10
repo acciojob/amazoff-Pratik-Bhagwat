@@ -1,71 +1,93 @@
 package com.driver;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
 public class OrderService {
-    OrderRepository repository = new OrderRepository();
-    public void addOrder(Order order) {
-        repository.addOrder(order);
+
+    OrderRepository orderRepository = new OrderRepository();
+
+    void addOrder(Order order){
+        orderRepository.addOrder(order);
     }
 
-    public void addPartner(String partnerId) {
-        DeliveryPartner partner = new DeliveryPartner(partnerId);
-        repository.addDeliveryPartner(partner);
+    void addPartner(String partnerId){
+        orderRepository.addPartner(partnerId);
     }
 
-    public void addOrderPartnerPair(String orderId, String partnerId) {
-        repository.assignOrderByPartner(orderId,partnerId);
+    void addOrderPartnerPair(String orderId,String partnerId){
+        orderRepository.addOrderPartnerPair(orderId,partnerId);
     }
 
-    public Order getOrderById(String orderId) {
-        List<String> orderList = repository.getAllOrders();
-        for (String o : orderList) {
-            if (o.equals(orderId)) return new Order(orderId);
-        }
-        return null;
+    Order getOrderById(String orderId){
+        return orderRepository.getOrderById(orderId);
     }
 
-    public DeliveryPartner getPartnerById(String partnerId) {
-        List<DeliveryPartner> partnerList = repository.getAllPartners();
-        for (DeliveryPartner dp: partnerList) {
-            if (dp.getId().equals(partnerId)) return dp;
-        }
-        return null;
+    DeliveryPartner getPartnerById(String partnerId){
+        return orderRepository.getPartnerById(partnerId);
     }
 
     public Integer getOrderCountByPartnerId(String partnerId) {
-        return repository.getOrderCountByPartner(partnerId);
+        return orderRepository.getOrderCountByPartnerId(partnerId);
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
-        return repository.getOrderByPartnerId(partnerId);
+        return orderRepository.getOrdersByPartnerId(partnerId);
     }
 
     public List<String> getAllOrders() {
-        return repository.getAllOrders();
+        return orderRepository.getAllOrders();
     }
 
     public Integer getCountOfUnassignedOrders() {
-        return repository.getUnAssignedOrders();
+        return orderRepository.getCountOfUnassignedOrders();
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
-        int deliveryTime = Integer.parseInt(time);
-        return repository.getOrdersLeftAfterGivenTime(deliveryTime,partnerId);
+        String[] splitTime = time.split(":");
+        int givenTime = Integer.parseInt(splitTime[0]) * 60 + Integer.parseInt(splitTime[1]);
+        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(givenTime,partnerId);
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        return repository.getLastDeliveryTime(partnerId);
+        int time = orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        String HH = String.valueOf(time/60);
+        String MM = String.valueOf(time%60);
+        if(HH.length()<2){
+            HH = '0' + HH;
+        }
+        if (MM.length()<2){
+            MM = '0' + MM;
+        }
+        return  HH + ":" + MM;
     }
 
     public void deletePartnerById(String partnerId) {
-        repository.deleteDeliveryPartner(partnerId);
+        orderRepository.deletePartnerById(partnerId);
     }
 
     public void deleteOrderById(String orderId) {
-        repository.deleteOrderById(orderId);
+        orderRepository.deleteOrderById(orderId);
+    }
+
+    public HashMap<String, Order> check1() {
+        return orderRepository.check1();
+    }
+
+    public HashMap<String, DeliveryPartner> check2() {
+        return orderRepository.check2();
+    }
+
+    public HashMap<String,String> check3(){
+        return orderRepository.check3();
+    }
+
+    public HashMap<String, HashSet<String>> check4() {
+        return orderRepository.check4();
     }
 }
